@@ -1,0 +1,15 @@
+
+#ODL
+http://localhost:8182/index.html
+admin:admin
+
+#ONOS
+http://localhost:8181/onos/ui/index.html
+onos:rocks
+
+#Floodlight
+http://localhost:8084/ui/pages/index.html
+
+#Firewall
+curl http://localhost:8080/wm/firewall/module/status/json 
+

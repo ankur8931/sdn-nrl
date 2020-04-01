@@ -14,7 +14,7 @@ intent1 = {
     "criteria": [
       {
         "type": "ETH_DST",
-        "mac": "AE:11:32:00:1D:D4"
+        "mac": "86:2D:E8:3A:B5:02"
       }
     ]
   },
@@ -38,11 +38,11 @@ intent1 = {
   ],
   "ingressPoint": {
     "port": "1",
-    "device": "of:0000000000000002"
+    "device": "of:0000000000000001"
   },
   "egressPoint": {
     "port": "2",
-    "device": "of:0000000000000003"
+    "device": "of:0000000000000001"
   }
 }
 
