@@ -1,7 +1,9 @@
 
 #ODL
-http://localhost:8182/index.html
+http://localhost:8085/index.html
 admin:admin
+ssh -p 8086 karaf@localhost Default password is "karaf"
+Passwd: karaf
 
 #ONOS
 http://localhost:8181/onos/ui/index.html

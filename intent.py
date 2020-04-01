@@ -7,14 +7,16 @@ header = {"content-type": "application/json"}
 #url = "http://192.168.3.30:8181/onos/v1/flows/of:0000000000000001"
 url = "http://192.168.3.30:8181/onos/v1/intents/"
 #headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+'''
 intent1 = {
+  "id": "0x10",
   "type": "PointToPointIntent",
-  "appId": "org.onosproject.core",
+  "appId": "org.onosproject.cli",
   "selector": {
     "criteria": [
       {
         "type": "ETH_DST",
-        "mac": "86:2D:E8:3A:B5:02"
+        "mac": "E2:99:5C:18:07:5B"
       }
     ]
   },
@@ -23,10 +25,9 @@ intent1 = {
       {
         "type": "L2MODIFICATION",
         "subtype": "ETH_SRC",
-        "mac": "DA:F3:9B:C5:30:DE"
+        "mac": "A2:5D:5E:1C:A8:D9"
       }
-    ],
-    "deferred": []
+    ]    
   },
   "priority": 55,
   "constraints": [
@@ -37,15 +38,35 @@ intent1 = {
     }
   ],
   "ingressPoint": {
-    "port": "1",
+    "port": "3",
     "device": "of:0000000000000001"
   },
   "egressPoint": {
-    "port": "2",
+    "port": "1",
     "device": "of:0000000000000001"
   }
 }
+'''
+ingress = 'of:0000000000000001'
+ingressPort = '3'
+egress = 'of:0000000000000001'
+egressPort = '1'
+ 
+intentJsonTemplate = \
+    '{{' + \
+        '"type": "PointToPointIntent",' + \
+        '"appId": "org.onosproject.cli",' + \
+        '"ingressPoint": {{' + \
+        '    "device": "{}",' + \
+        '    "port": "{}"' + \
+        '}},' + \
+        '"egressPoint": {{' + \
+        '    "device": "{}",' + \
+        '    "port": "{}"' + \
+        '}}' + \
+    '}}'
 
+intent1 = intentJsonTemplate.format(ingress, ingressPort, egress, egressPort)
 #Switch ID needed for single flow
 flow1 = {
   "priority": 5000,
@@ -68,7 +89,7 @@ flow1 = {
   }
 }
 
-#r = requests.post(url, data=json.dumps(intent1), headers=header, auth=('onos', 'rocks'))
-r = requests.get(url, auth=('onos', 'rocks'))
+r = requests.post(url, data=intent1, headers=header, auth=('onos', 'rocks'))
+#r = requests.get(url, auth=('onos', 'rocks'))
 print(r.status_code, r.reason)
 print (r.text)
