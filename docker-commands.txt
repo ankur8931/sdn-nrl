@@ -18,3 +18,9 @@
        sudo docker pull glefevre/opendaylight
   577  sudo docker run -d -p 6644:6633 -p 8182:8181 -p 8102:8101 --name=opendaylight glefevre/opendaylight
 
+# to create onos container 1
+sudo docker run -d -p 6641:6641 -p 8080:8080 -p 8101:8101 -p 8181:8181 -p 9876:9876 -p 6654:6653  --name=onos02  onosproject/onos
+
+# to create onos container 2
+sudo docker run -d -p 6644:6641 -p 8081:8080 -p 8102:8101 -p 8182:8181 -p 9877:9876 -p 6655:6653  --name=onos02  onosproject/onos
+

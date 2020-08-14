@@ -1,0 +1,157 @@
+
+
+% This is the clingo program to represent the following example problem
+
+% Undirected graph defined as a sequence of undirected edges: 
+
+%% (h1,s1), (h2,s2), (s1,s2), (h3,s2), (s2,s3), (h4,s3), (h5,s3)
+
+% Rules: (h1,h5,allow), (h2,h3,allow), (h3,h4,allow), (h2,h4,deny)
+
+% Problems: 
+
+%% (i) find the shortest path for each 2 nodes in every rule; 
+
+%% (ii) check whether there is a mistake, i.e., a package from h2 to h4 is denied but the package can be transferred from h2 to h3 to h4; 
+
+%% (iii) query if package from h1 always reaches h5.
+
+% How to run?
+
+% 1. Install clingo according to https://github.com/zhunyoung/clingoTutorial
+
+% 2. Run "clingo main.txt" in the terminal
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Graph Description
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+edge(h1, s1).
+
+edge(h2, s2).
+
+edge(s1, s2).
+
+edge(h3, s2).
+
+edge(s2, s3).
+
+edge(h4, s3).
+
+edge(h5, s3).
+
+edge(X,Y) :- edge(Y,X).
+
+node(X) :- edge(X,_).
+
+numEdges(N/2) :- N=#count{X,Y: edge(X,Y)}.
+
+host(h1;h2;h3;h4;h5).
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Rule Description
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+rule(h1, h5, allow).
+
+rule(h2, h3, allow).
+
+rule(h3, h4, allow).
+
+rule(h2, h4, deny).
+
+% I assume the rule is reflective
+
+rule(H1, H2, X) :- rule(H2, H1, X).
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Find the Smallest Cost of Each Rule (i.e., The Cost of Each Possible Package Transaction)
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% if deny the connection between H1 and H2, then the cost is infinity
+
+cost(H1, H2, infinity) :- rule(H1, H2, deny).
+
+% if allow the connection between H1 and H2, then every edge is possibly in the shortest path (SP) between H1 and H2
+
+{sp(H1, H2, edge(X,Y))} :- rule(H1, H2, allow), edge(X,Y).
+
+% we want to have the minimal number of edges, thus give each edge in SP a penalty 1
+
+:~ sp(H1, H2, edge(X,Y)). [1@2, H1, H2, X, Y]
+
+% H1 and H2 must be reachable using the edges in the SP between H1 and H2
+
+reachable(H1, H2, X, Y) :- sp(H1, H2, edge(X,Y)).
+
+reachable(H1, H2, X, Y) :- reachable(H1, H2, X, Z), sp(H1, H2, edge(Z,Y)).
+
+reachable(H1, H2, X, Y) :- reachable(H1, H2, Y, X).
+
+:- rule(H1, H2, allow), not reachable(H1, H2, H1, H2).
+
+% define the cost between H1 and H2 given "rule(H1, H2, allow)"
+
+cost(H1, H2, N) :- rule(H1, H2, allow), N=#count{X,Y: sp(H1,H2,edge(X,Y))}.
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Define the Shortest Route between Each 2 Different Hosts
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% each shortest path between X and Y is a shortest route between X and Y if the cost is not infinity
+
+sr(X, Y, N) :- host(X), host(Y), cost(X, Y, N), N!=infinity.
+
+% the shortest route between every different host X and Y must have exactly one length
+
+:- host(X), host(Y), X!=Y, #count{N: sr(X,Y,N)} != 1.
+
+% by default, the shortest route between different X and Y has infinity length
+
+{sr(X, Y, infinity)} :- host(X), host(Y), X!=Y.
+
+% a shortest route could be a combination of other 2 sr
+
+{sr(X, Y, N)} :- cost(X,Z,N1), cost(Z,Y,N2), N1!=infinity, N2!=infinity, N=N1+N2.
+
+% we minimize the case of infinity length, then minimize the cost of each route
+
+:~ sr(X, Y, infinity). [1@1, X, Y]
+
+:~ sr(X, Y, N), N!=infinity. [N@0, X, Y]
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Identify Mistake if the Shortest Route is not Infinity While the Cost is Infinity Due to Deny
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+mistake(sr(X,Y,N)) :- sr(X,Y,N), N!=infinity, cost(X,Y,infinity).
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Query the Destination of Package from A Given Host
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+query(h1).
+
+destination(X, Y) :- query(X), sr(X,Y,N), N!=infinity.
+
+#show cost/3.
+
+#show sr/3.
+
+#show mistake/1.
+
+#show destination/2.
+
+

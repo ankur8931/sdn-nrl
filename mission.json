@@ -1,0 +1,55 @@
+{
+  "systems": [
+    {
+       "name": "Defense",
+       "color": "yellow",
+       "domains": [
+         {
+           "name": "ONOS",
+           "hosts": [
+             { "name": "h1", "IP4Address": "10.11.1.103" },
+             { "name": "h2", "IP4Address": "10.11.1.102" },
+             { "name": "h3", "IP4Address": "10.11.3.107" }
+
+           ]
+         },
+        {
+           "name": "ODL",
+           "hosts": [
+             { "name": "h4", "IP4Address": "10.11.4.201" },
+             { "name": "h5", "IP4Address": "10.11.4.110" }
+
+           ]
+         }
+       ]
+    }
+  ],
+  "criticalHosts": [
+    "Defense.ONOS.h1",
+    "Defense.ODL.h4"
+  ],
+  "missionRequirements": [
+    {
+      "src":  "Defense.ONOS.h1",
+      "dst":  "Defense.ODL.h5",
+      "port": "tcp:443"
+    },
+    {
+      "src":  "Defense.ONOS.h2",
+      "dst":  "Defense.ONOS.h3",
+      "port": "tcp:443"
+    },
+    {
+      "src":  "Defense.ONOS.h3",
+      "dst":  "Defense.ODL.h4",
+      "port": "tcp:443"
+    }
+  ],
+  "securityRules": [
+    {
+      "src":    "Defense.ONOS.h2",
+      "dst":    "Defense.ODL.h4",
+      "action": "blocked"
+    }
+  ]
+}

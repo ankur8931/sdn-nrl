@@ -1,0 +1,36 @@
+MODULE main 
+   VAR switch: {s1,s2,s3};
+       src: {h1,h2,h3,h4,h5};
+       dst: {h1,h2,h3,h4,h5};
+DEFINE
+   execlude := src !=h2 | src != h3 | src !=h4 | src != h5;
+
+ASSIGN
+   next(src):=case
+	dst !=h3:h3;
+	dst !=h4:h4;
+	dst !=h5:h5;
+	TRUE:h1;
+   esac;
+   next (dst):=case
+	src !=h1:h1;
+        src !=h2:h2;
+        src !=h3:h3;
+
+	TRUE:h5;
+   esac;
+   next(switch):= case
+        switch = s2 &( dst !=h3) :{s1,s3};
+        switch = s3 &(dst !=h4 | dst !=h5):s2;
+        switch = s1 &(dst !=h1 | dst !=h2) & execlude :s2;
+        switch = s1 & src = h1 & dst = h5:s3;
+        switch = s1 & src = h2 & dst = h3:s2;
+        switch = s2 & src = h3 & dst = h4:s3;
+        TRUE:s1;
+   esac;
+--   next(src):= src;
+--   next(dst):= dst;
+--INIT switch = s1;
+--INIT src = h1;
+--INIT dst = h2;
+-- LTLSPEC G ((src=h2 & switch = s1)  -> F (dst=h4));
