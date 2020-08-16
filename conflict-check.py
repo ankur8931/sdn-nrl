@@ -1,7 +1,7 @@
 import requests
 import json
 import subprocess
-
+from ipaddress import ip_network, ip_address
 
 # Check layer2 overlap
 def isL2subsetr2r1(l2s1, l2d1, l2s2, l2d2):
@@ -20,7 +20,39 @@ def isL2equalsr1r2(l2s1, l2d1, l2s2, l2d2):
     return False
 
 # Check layer3 overlap
+def isL3subsetr2r1(l3s1, l3d1, l3s2, l3d2):
+    l3s1 = ip_network(l3s1)
+    l3d1 = ip_network(l3d1)
+    if (l3s2 in l3s1 and l3d2 in l3d1):
+       return True
+    return False
 
+def isL3subsetr1r2(l3s1, l3d1, l3s2, l3d2):
+    l3s2 = ip_network(l3s2)
+    l3d2 = ip_network(l3d2)
+    if (l3s1 in l3s2 and l3d1 in l3d2):
+       return True
+    return False
+  
+# Check layer4 overlap
+def isL4subsetr2r1(l4s1, l4d1, l4s2, l4d2):
+    if ((l4s2 == "" and l4s1 !="") or (l4d2 == "" and l4d1 != "")):
+       return True
+    return False
+
+def isL4subsetr1r2(l4s1, l4d1, l4s2, l4d2):
+    if ((l4s2 == "" and l4s1 !="") or (l4d2 == "" and l4d1 != "")):
+       return True
+    return False
+
+def isL4equalsr1r2(l4s1, l4d1, l4s2, l4d2):
+    if ((l4s1 == l4s2) and (l4d1 == l4d2)):         
+       return True
+    return False
+
+# Check action matching
+
+## Function for conflict checking
 def conflict_detection(flows):
 
     for f_1 in flows:
