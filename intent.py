@@ -100,10 +100,10 @@ intent2 = {
 }
 
 
-r = requests.post(url, data=json.dumps(intent2), headers=header, auth=('onos', 'rocks'))
 flow1 = "http://192.168.3.30:8181/onos/v1/flows/"
 intent1 = "http://192.168.3.30:8181/onos/v1/intents/"
+r = requests.post(url, data=json.dumps(intent2), headers=header, auth=('onos', 'rocks'))
 #r = requests.post(intent2, data =json.dumps(intent2), headers=header, auth=('onos', 'rocks'))
-
+r = requests.get(flow1, auth=('onos','rocks'))
 print(r.status_code, r.reason)
 print (r.text)
