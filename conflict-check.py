@@ -2,17 +2,34 @@ import requests
 import json
 import subprocess
 
-'''cmd = 'ovs-ofctl dump-flows s1'
-p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-flows, err = p.communicate()
-flows = flows.splitlines()
 
-for flow in flows:
-    if 'cookie' in flow:
-       fields = flow.split(',')
-       print(fields)
+# Check layer2 overlap
+def isL2subsetr2r1(l2s1, l2d1, l2s2, l2d2):
+    if ((l2s1 == "" and l2s2 !="") or (l2d1 == "" and l2d2 != "")):
+       return True
+    return False
 
-'''
+def isL2subsetr1r2(l2s1, l2d1, l2s2, l2d2):
+    if ((l2s2 == "" and l2s1 !="") or (l2d2 == "" and l2d1 != "")):
+       return True
+    return False
+
+def isL2equalsr1r2(l2s1, l2d1, l2s2, l2d2):
+    if ((l2s1 == l2s2) and (l2d1 == l2d2)):         
+       return True
+    return False
+
+# Check layer3 overlap
+
+def conflict_detection(flows):
+
+    for f_1 in flows:
+        for f_2 in f_1:
+    #total overlap/ partial overlap, same action, different action
+            a_1 = f_1['action']
+            a_2 = f_2['action']
+                      
+
 flow1 = "http://192.168.3.30:8181/onos/v1/flows/"
 r = requests.get(flow1, auth=('onos','rocks'))
 flows = list()
@@ -40,16 +57,7 @@ for flow in json.loads(r.text)['flows']:
                  match[field_type] = flow['selector']['criteria'][i]['tcpPort']
               elif field_type == 'UDP_SRC' or field_type =='UDP_DST':
                  match[field_type] = flow['selector']['criteria'][i]['udpPort']
-                 
-               
           
-          #print(flow['selector']['criteria'][0]['port'])
-          #print(flow['selector']['criteria'][1]['type'])
-          #print(flow['selector']['criteria'][1]['mac'])
-        
-       print("======Action=====")
-       print(flow['treatment']['instructions'])
-       print('\n')
-#print (r.text)
+       match['action'] = flow['treatment']['instructions'] 
     flows.append(match)
 print(flows)              
