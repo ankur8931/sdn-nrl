@@ -58,9 +58,82 @@ def conflict_detection(flows):
     for f_1 in flows:
         for f_2 in f_1:
     #total overlap/ partial overlap, same action, different action
-            a_1 = f_1['action']
-            a_2 = f_2['action']
-                      
+            if f_1 !=f_2:
+
+               #Extract action field for both rules
+               a_1 = f_1['action']
+               a_2 = f_2['action']
+             
+
+               # Extract rule1, rule2 layer2 fields
+               f_1l2src = ''
+               f_1l2dst = ''
+               f_2l2src = ''
+               f_2l2dst = ''
+                 
+               if 'ETH_SRC' in f_1.keys():
+                   f_1l2src = f_1['ETH_SRC']
+               if 'ETH_DST' in f_1.keys():
+                   f_1l2dst = f_1['ETH_DST']
+               if 'ETH_SRC' in f_2.keys():
+                   f_2l2src = f_2['ETH_SRC']
+               if 'ETH_DST' in f_2.keys():
+                   f_2l2dst = f_2['ETH_DST']
+                                    
+
+               # Extract rule1, rule2 layer3 fields
+                              
+               f_1l3src = ''
+               f_1l3dst = ''
+               f_2l3src = ''
+               f_2l3dst = ''
+
+               if 'IPV4_SRC' in f_1.keys():
+                   f_1l3src = f_1['IPV4_SRC']
+               if 'IPV4_DST' in f_1.keys():
+                   f_1l3dst = f_1['IPV4_DST']
+               if 'IPV4_SRC' in f_2.keys():
+                   f_2l3src = f_2['IPV4_SRC']
+               if 'IPV4_DST' in f_2.keys():
+                   f_2l3dst = f_2['IPV4_DST']
+
+               # Extract rule1. rule2 layer4 fields
+               
+               f_1l4src = ''
+               f_1l4dst = ''
+               f_2l4src = ''
+               f_2l4dst = ''
+
+                
+               if 'TCP_SRC' in f_1.keys():
+                   f_1l4src = f_1['TCP_SRC']
+               if 'TCP_DST' in f_1.keys():
+                   f_1l4dst = f_1['TCP_DST']
+               if 'TCP_SRC' in f_2.keys():
+                   f_2l4src = f_2['TCP_SRC']
+               if 'TCP_DST' in f_2.keys():
+                   f_2l4dst = f_2['TCP_DST']
+
+               # Check for inheritance conflict
+               if ((isL2subsetr2r1(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
+                   isL2equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))
+                   and (isL3subsetr2r1(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
+                   isL3equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))
+                   and (isL4subsetr2r1(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
+                   isL4equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))):
+                    
+                     print("Inheritance: R2 is subset of R1")
+                                     
+               elif ((isL2subsetr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
+                   isL2equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))
+                   and (isL3subsetr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
+                   isL3equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))
+                   and (isL4subsetr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
+                   isL4equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))):
+                     
+                     print("Inheritance: R2 is subset of R1")
+
+                                 
 
 flow1 = "http://192.168.3.30:8181/onos/v1/flows/"
 r = requests.get(flow1, auth=('onos','rocks'))
