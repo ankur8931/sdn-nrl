@@ -21,8 +21,7 @@ def isL2equalsr1r2(l2s1, l2d1, l2s2, l2d2):
 
 # Check layer3 overlap
 def isL3subsetr2r1(l3s1, l3d1, l3s2, l3d2):
-    l3s1 = ip_network(l3s1)
-    l3d1 = ip_network(l3d1)
+    
     if (l3s2 in l3s1 and l3d2 in l3d1):
        return True
     return False
@@ -34,6 +33,11 @@ def isL3subsetr1r2(l3s1, l3d1, l3s2, l3d2):
        return True
     return False
   
+def isL3equalsr1r2(l3s1, l3d1, l3s2, l3d2):
+    if ((l3s1 == l3s2) and (l3d1 == l3d2)):         
+       return True
+    return False
+
 # Check layer4 overlap
 def isL4subsetr2r1(l4s1, l4d1, l4s2, l4d2):
     if ((l4s2 == "" and l4s1 !="") or (l4d2 == "" and l4d1 != "")):
@@ -56,13 +60,17 @@ def isL4equalsr1r2(l4s1, l4d1, l4s2, l4d2):
 def conflict_detection(flows):
 
     for f_1 in flows:
-        for f_2 in f_1:
+        for f_2 in flows:
     #total overlap/ partial overlap, same action, different action
-            if f_1 !=f_2:
-
-               #Extract action field for both rules
-               a_1 = f_1['action']
-               a_2 = f_2['action']
+            if f_1 != f_2:
+               
+              #Extract action field for both rules
+               a_1 = ''
+               a_2 = ''
+               if 'action' in f_1.keys():
+                  a_1 = f_1['action']
+               if 'action' in f_2.keys():
+                  a_2 = f_2['action']
              
                f_1proto = ''
                f_2proto = ''
@@ -111,6 +119,21 @@ def conflict_detection(flows):
                    f_2l3src = f_2['IPV4_SRC']
                if 'IPV4_DST' in f_2.keys():
                    f_2l3dst = f_2['IPV4_DST']
+               
+               
+               if f_1l3src == '':
+                  f_1l3src = '0.0.0.0/0'
+               if f_1l3dst == '':
+                  f_1l3dst = '0.0.0.0/0'
+               if f_2l3src == '':
+                  f_2l3src = '0.0.0.0/0'
+               if f_2l3dst == '':
+                  f_2l3dst = '0.0.0.0/0'
+
+               f_1l3src = ip_network(f_1l3src)
+               f_1l3dst = ip_network(f_1l3dst)
+               f_2l3src = ip_network(f_2l3src)
+               f_3l3dst = ip_network(f_2l3dst)
 
                # Extract rule1. rule2 layer4 fields
                
@@ -140,18 +163,20 @@ def conflict_detection(flows):
                     
                # Check if rule2 is subset or equals rule1
 
-               bool l2overlap = False, l3overlap = False, l4overlap = False
+               l2overlap = False
+               l3overlap = False
+               l4overlap = False
 
                if (isL2subsetr2r1(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
-                   isL2equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))
+                   isL2equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst)):
                    l2overlap = True
                    
-               if(isL3subsetr2r1(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
-                   isL3equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst)):
+               if(isL3subsetr2r1(f_1l3src, f_1l3dst, f_2l3src, f_2l3dst) or
+                   isL3equalsr1r2(f_1l3src, f_1l3dst, f_2l3src, f_2l3dst)):
                    l3overlap = True
 
-               if(isL4subsetr2r1(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
-                   isL4equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst)):
+               if(isL4subsetr2r1(f_1l4src, f_1l4dst, f_2l4src, f_2l4dst) or
+                   isL4equalsr1r2(f_1l4src, f_1l4dst, f_2l4src, f_2l4dst)):
                    l4overlap = True
   
                    if l2overlap and l3overlap and l4overlap:
@@ -162,21 +187,21 @@ def conflict_detection(flows):
                    if l2overlap or l3overlap or l4overlap:
                        if a_1 == a_2:
                          print("Aggregation: R2 overlaps R1 same action")
-                      else:
+                       else:
                          print("Composition: R2 overlaps R1 different action")
 
                # Check if rule1 is subset or equals rule2
  
                if (isL2subsetr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
-                   isL2equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst))
+                   isL2equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst)):
                    l2overlap = True
                             
-               if(isL3subsetr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
-                   isL3equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst)):
+               if(isL3subsetr1r2(f_1l3src, f_1l3dst, f_2l3src, f_2l3dst) or
+                   isL3equalsr1r2(f_1l3src, f_1l3dst, f_2l3src, f_2l3dst)):
                    l3overlap = True
 
-               if(isL4subsetr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst) or
-                   isL4equalsr1r2(f_1l2src, f_1l2dst, f_2l2src, f_2l2dst)):
+               if(isL4subsetr1r2(f_1l4src, f_1l4dst, f_2l4src, f_2l4dst) or
+                   isL4equalsr1r2(f_1l4src, f_1l4dst, f_2l4src, f_2l4dst)):
                    l4overlap = True
   
                    if l2overlap and l3overlap and l4overlap:
@@ -187,12 +212,10 @@ def conflict_detection(flows):
                    if l2overlap or l3overlap or l4overlap:
                        if a_1 == a_2:
                          print("Aggregation: R1 overlaps R2 same action")
-                      else:
+                       else:
                          print("Composition: R1 overlaps R1 different action")
-
-               # Check for partial overlap                  
                            
-               
+                                  
 flow1 = "http://192.168.3.30:8181/onos/v1/flows/"
 r = requests.get(flow1, auth=('onos','rocks'))
 flows = list()
@@ -223,4 +246,7 @@ for flow in json.loads(r.text)['flows']:
           
        match['action'] = flow['treatment']['instructions'] 
     flows.append(match)
-print(flows)              
+
+conflict_detection(flows)
+
+#print(flows)              
