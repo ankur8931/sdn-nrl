@@ -62,8 +62,8 @@ def conflict_detection(flows):
     for f_1 in flows:
         for f_2 in flows:
     #total overlap/ partial overlap, same action, different action
-            if f_1 != f_2:
-               
+            if f_1 != f_2 and 'id' in f_1.keys() and 'id' in f_2.keys():
+           
               #Extract action field for both rules
                a_1 = ''
                a_2 = ''
@@ -181,14 +181,18 @@ def conflict_detection(flows):
   
                    if l2overlap and l3overlap and l4overlap:
                       if a_1 == a_2:
-                         print("Inheritance: R2 is subset of R1 same action")
+                         #print("Inheritance: R2 is subset of R1 same action")
+                         conflict_set.add((f_1['id'], f_2['id'], "Inheritance"))
                       else:
-                         print("Polymorphism: R2 subset of R1 but different actions")
-                   if l2overlap or l3overlap or l4overlap:
+                         #print("Polymorphism: R2 subset of R1 but different actions")
+                         conflict_set.add((f_1['id'], f_2['id'], "Polymorphism"))
+                   elif l2overlap or l3overlap or l4overlap:
                        if a_1 == a_2:
-                         print("Aggregation: R2 overlaps R1 same action")
+                         #print("Aggregation: R2 overlaps R1 same action")
+                         conflict_set.add((f_1['id'], f_2['id'], "Aggregation"))
                        else:
-                         print("Composition: R2 overlaps R1 different action")
+                         #print("Composition: R2 overlaps R1 different action")
+                         conflict_set.add((f_1['id'], f_2['id'], "Composition"))
 
                # Check if rule1 is subset or equals rule2
  
@@ -206,25 +210,30 @@ def conflict_detection(flows):
   
                    if l2overlap and l3overlap and l4overlap:
                       if a_1 == a_2:
-                         print("Inheritance: R1 is subset of R2 same action")
+                         conflict_set.add((f_1['id'], f_2['id'], "Inheritance"))
+                         #print("Inheritance: R1 is subset of R2 same action")
                       else:
-                         print("Polymorphism: R1 subset of R2 but different actions")
-                   if l2overlap or l3overlap or l4overlap:
+                         #print("Polymorphism: R1 subset of R2 but different actions")
+                         conflict_set.add((f_1['id'], f_2['id'], "Polymorphism"))
+                   elif l2overlap or l3overlap or l4overlap:
                        if a_1 == a_2:
-                         print("Aggregation: R1 overlaps R2 same action")
+                         #print("Aggregation: R1 overlaps R2 same action")
+                         conflict_set.add((f_1['id'], f_2['id'], "Aggregation"))
                        else:
-                         print("Composition: R1 overlaps R1 different action")
+                         #print("Composition: R1 overlaps R1 different action")
+                         conflict_set.add((f_1['id'], f_2['id'], "Composition"))
                            
                                   
-flow1 = "http://192.168.3.30:8181/onos/v1/flows/"
+flow1 = "http://localhost:8181/onos/v1/flows/"
 r = requests.get(flow1, auth=('onos','rocks'))
+conflict_set = set()
 flows = list()
-print(r.status_code, r.reason)
-print(r.text)
+#print(r.status_code, r.reason)
+#print(r.text)
 for flow in json.loads(r.text)['flows']:
     match = dict()
     if flow['selector']['criteria'][0]['type'] == 'IN_PORT':
-       print("======Match======")
+       #print("======Match======")
        if len(flow['selector']['criteria'])==1:
           print(flow['selector']['criteria'][0]['port'])
        else:
@@ -244,9 +253,16 @@ for flow in json.loads(r.text)['flows']:
               elif field_type == 'UDP_SRC' or field_type =='UDP_DST':
                  match[field_type] = flow['selector']['criteria'][i]['udpPort']
           
-       match['action'] = flow['treatment']['instructions'] 
+       match['action'] = flow['treatment']['instructions']
+       match['id'] = flow['id'] 
     flows.append(match)
 
 conflict_detection(flows)
+for flow in flows:
+    if 'id' in flow.keys():
+        print(flow['id'])
+
+for conflict in conflict_set:
+    print(conflict)
 
 #print(flows)              
