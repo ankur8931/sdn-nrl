@@ -1,0 +1,26 @@
+MODULE main
+  VAR port:    {s1,s2,s3};
+  VAR src:     {h1,h2,h3};
+  VAR dst:     {h3,h4,h5};
+--  VAR purpose: {sensitive, other}; 
+
+ASSIGN
+  next(port):= case
+	port = s1 &( dst !=h1 | dst !=h2): s2;
+        port = s2 & dst !=h3 & (dst=h1 | dst=h2): s1;
+        port = s3 &( dst !=h4 | dst!=h5) &( dst=h1 | dst=h2 | dst=h3): s2;
+	port = s1 & src = h1 & dst = h5: s2;
+	port = s2 & src = h1 & dst = h5: s3;
+	port = s1 & src = h2 & dst = h3: s2;
+	port = s2 & src = h3 & dst = h4: s3;
+	--port = s1 & src = h2 & dst = h4   : DROP;
+	--port = s2 & src = h2 & dst = h4   : DROP;
+	--port = s3 & src = h2 & dst = h4  : DROP;
+	TRUE: s1;
+  esac;
+  next(src):= src;
+  next(dst):= dst;
+--  next(purpose):= purpose;
+INIT port = s1;
+
+

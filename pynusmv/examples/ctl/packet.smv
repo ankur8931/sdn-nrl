@@ -1,0 +1,36 @@
+MODULE rules(srcip, dstip, action)
+     VAR
+       hosts: {h1, h2, h3, h4, h5};
+       actions: {allow, deny};
+       location: {h1, h2, h3, h4, h5, s1, s2, s3, idle};
+     ASSIGN
+       init(location) := idle       
+       next(location) :=
+         case
+           location = h1 : s1;
+           location = s1 : s2;
+           location = s2 : s3;
+           location = s3 : h5;
+           idle : location;
+         esac;
+         
+ 
+MODULE packet(srcip, dstip, sport, dport, proto)
+    VAR 
+         srcip : {h1,h2,h3,h4,h5};
+         dstip : {h1,h2,h3,h4,h5};
+         sport : 0..65535;
+         dport : 0..65535;
+         proto : {TCP, UDP, ICMP};
+
+MODULE main
+    VAR 
+         p1 : packet(srcip=h1, dstip=h2, sport=80, dport=80, proto=TCP);
+         rule1 : rules(srcip=h1, dstip=h5, action=allow);
+    DEFINE 
+         srcip := {h1,h2,h3,h4,h5};
+         dstip := {h1,h2,h3,h4,h5};
+         sport := 0..65535;
+         dport := 0..65535;
+         proto := {TCP, UDP, ICMP};
+         action := {allow, deny};

@@ -1,0 +1,13 @@
+-- specification  G (src = h2 ->  F dst = h4)  is false
+-- as demonstrated by the following execution sequence
+Trace Description: LTL Counterexample 
+Trace Type: Counterexample 
+  -- Loop starts here
+  -> State: 5.1 <-
+    switch = s1
+    src = h2
+    dst = h1
+  -> State: 5.2 <-
+    switch = s2
+  -> State: 5.3 <-
+    switch = s1

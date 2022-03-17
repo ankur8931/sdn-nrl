@@ -1,0 +1,22 @@
+MODULE main 
+   VAR NF: {s1,s2,s31,s32,s33,bgp1,bgp2,bgp3};
+       src: {h1,h2,h3};
+       dst: {h1,h2,h3};
+--       router: {bgp1,bgp2,bgp3};
+ASSIGN
+   next(NF):= case
+        NF = s1 & dst !=h1 : bgp1;
+        NF = bgp1 & dst !=h1: s32;
+	NF = bgp1 & dst =h1:  s1;
+        NF = s32 & (dst =h1 | dst =h2): {s31,bgp1};
+        NF = s31 & (dst =h1 | dst =h2): {s32,s33};
+        NF = s33 & (dst =h1 | dst =h2): {s31,bgp2};
+        NF = bgp2 & dst !=h2: s33;
+        NF = bgp2 & dst =h2:  s2;
+	NF = s2 & dst !=h2 : bgp2;
+        TRUE: s1;
+   esac;
+   next(src):= src;
+   next(dst):= dst;
+--INIT switch = s1;
+LTLSPEC G(src=h1 -> F dst=h2)

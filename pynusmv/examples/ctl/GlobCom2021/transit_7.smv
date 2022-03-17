@@ -1,0 +1,17 @@
+MODULE main 
+   VAR switch: {s1,s2,s3,s4,s5,s6,s7};
+       src: {h1,h2,h3,h4,h5,h6,h7};
+       dst: {h1,h2,h3,h4,h5,h6,h7};
+ASSIGN
+   next(switch):= case
+        switch = s1 & src = h1 & dst = h7 :s2;
+        switch = s2 & src = h1 & dst = h7 :s3;
+        switch = s3 & src = h1 & dst = h7 :s4;
+        switch = s4 & src = h1 & dst = h7 :s5;
+        switch = s5 & src = h1 & dst = h7 :s6;
+        switch = s6 & src = h1 & dst = h7 :s7;
+        TRUE: s1;
+   esac;
+   next(src):= src;
+   next(dst):= dst;
+INIT switch = s1;

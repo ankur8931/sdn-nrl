@@ -1,0 +1,31 @@
+MODULE main
+    VAR src: {h1,h2,h3,h4};
+        dst: {h1,h2,h3,h4};
+        proto: {TCP, UDP, ICMP, OSPF, EBGP};
+        action: {forward, drop, modify, masquerade};
+        switch: {s1, s2, s3};
+        routers: {r1,r2,bgp};
+
+ASSIGN
+   next(switch) := case
+        switch = s1 & (src=h1|src=h2) & routers=r1: s3;
+        switch = s3 & (src=h1|src=h2) & routers=r1: s2;
+        switch = s2 & (src=h3|src=h4) & routers=r2: s3;
+        switch = s3 & (src=h3|src=h4) & routers=r2: s1;
+        TRUE: s1;
+   esac;
+
+   next(routers) :=case
+        routers = r2 | routers =bgp & (dst=h1 | dst=h2) : r1;
+        routers = r1  & (dst!=h1|dst!=h2) : r2;
+        routers = r1 & (dst!=h1 | dst!=h2 | dst!=h3 | dst!=h4): bgp;
+        TRUE: bgp;
+   esac; 
+   
+   next(src) := src;
+   next(dst) := dst;
+   INIT switch = s1;
+   INIT routers = r1; 
+LTLSPEC G ((src=h2 & routers = r1)  -> F (dst=h4));  
+   
+      

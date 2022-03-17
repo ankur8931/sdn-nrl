@@ -1,0 +1,22 @@
+MODULE main
+VAR
+    port : {I_0, F1_0, F2_0, F3_0, START, WORLD, DROP};
+    src : {Auth, Guest};
+    purpose : {Web, Other};
+ASSIGN
+    next(port) := case
+	port = START : I_0;
+	port = I_0 & src = Auth : {F1_0, F2_0};
+	port = I_0 & src = Guest : F3_0;
+	port = F1_0 : WORLD;
+	port = F2_0 : WORLD;
+	port = F3_0 & purpose = Web : WORLD;
+	port = F3_0 & purpose = Other : DROP;
+	port = WORLD : WORLD;
+	port = DROP : DROP;
+    esac;
+    next(src) := src;
+    next(purpose) := purpose;
+    INIT port = START;
+LTLSPEC G (purpose = Other & src = Guest -> F port = DROP) &
+          ((src = Auth | src = Guest & purpose = Web) -> F port = WORLD);

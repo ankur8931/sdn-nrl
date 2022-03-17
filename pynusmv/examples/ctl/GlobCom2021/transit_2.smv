@@ -1,0 +1,18 @@
+MODULE main 
+   VAR switch: {s1,s2,s3,s4};
+       src: {h1,h2,h3,h4};
+       dst: {h1,h2,h3,h4};
+ASSIGN
+   next(switch):= case
+        switch = s1 & src = h1 & dst = h4 :s2;
+        switch = s2 & src = h1 & dst = h4 :s3;
+        switch = s3 & src = h1 & dst = h4 :s4;
+        TRUE: s1;
+   esac;
+   next(src):= src;
+   next(dst):= case
+        switch = s4 & src = h1: h4;
+        TRUE: h1;
+   esac;
+INIT switch = s1;
+LTLSPEC G(src=h1 -> F dst=h4)

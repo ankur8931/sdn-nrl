@@ -1,0 +1,31 @@
+MODULE nat
+  VAR set_src: {h1,h2,h3,h4,h5};
+
+MODULE header
+  VAR ip_src: {h1,h2,h3,h4,h5,s1,s2,s3};
+      ip_dst: {h1,h2,h3,h4,h5,s1,s2,s3};
+      action: {forward, drop, modify};
+
+MODULE rules
+   VAR src: {h1,h2,h3,h4,h5};
+       dst: {h1,h2,h3,h4,h5};
+       action: {allow, deny};
+
+MODULE main
+VAR location: {h1,h2,h3,h4,h5,s1,s2,s3};
+    packet: header;  
+    nat: nat;
+
+ASSIGN
+   init(packet.ip_src)  := {h1,h2,h3,h4,h5};
+   init(packet.action) := modify;
+   init(nat.set_src) := {h1,h2,h3,h4,h5};
+
+   next(packet.ip_src) := case
+		      (packet.action) = modify & nat.set_src=h2: h2;
+                      (packet.action) = modify & nat.set_src=h3: h3;
+                      (packet.action) = modify & nat.set_src=h4: h4;
+
+                     TRUE: packet.ip_src; 
+                   esac;
+

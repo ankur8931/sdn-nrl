@@ -1,0 +1,45 @@
+MODULE main
+    VAR
+       -- src: {h1,h2,h3,h4,h5,h6,h7,h8,h9,h10};
+	src: 1..100;
+        dst: 1..100;
+        proto: {TCP, UDP, ICMP, OSPF, EBGP};
+        action: {forward, drop, modify, masquerade};
+        switch: {s1, s2, s3,s4,s5,s6,s7,s8,s9,s10};
+        routers: 1..10;
+
+ASSIGN
+
+   next (routers) := case
+	switch=s1 & src in( 1..10) & dst in(11..20) :2;
+	switch=s2 & src in( 11..20) & dst in(21..30) :3;
+	switch=s3 & src in( 21..30) & dst in(31..40):4;
+	switch=s4 & src in( 31..40) & dst in(41..50):5;
+        switch=s5 & src in( 41..50) & dst in(51..60):6;
+        switch=s6 & src in( 51..60) & dst in(61..70):7;
+        switch=s7 & src in( 61..70) & dst in(71..80):8;
+        switch=s8 & src in( 71..80) & dst in(81..90):9;
+	switch=s9 & src in( 81..90) & dst in(91..100):10;
+	TRUE: 1;
+   esac;
+
+   next (dst) := case
+        routers=1 & src in( 1..10)  :(1..10);
+        routers=2 & src in( 11..20) :(11..20);
+        routers=3 & src in( 21..30) :(21..30);
+        routers=4 & src in( 31..40) :(31..40);
+        routers=5 & src in( 41..50) :(41..50);
+        routers=6 & src in( 51..60) :(51..60);
+        routers=7 & src in( 61..70) :(61..70);
+        routers=8 & src in( 71..80) :(71..80);
+        routers=9 & src in( 81..90) :(81..90);
+        routers=10 & src in( 91..100) :(91..100);
+        TRUE: 1;
+   esac;
+
+   next(src) := src;
+   INIT switch = s1;
+   INIT routers = 1;
+-- LTLSPEC G ((src=h2 & switch = s1)  -> F (dst=h11));
+
+

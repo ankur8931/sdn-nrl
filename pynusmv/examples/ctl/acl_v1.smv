@@ -1,0 +1,12 @@
+MODULE main
+VAR
+    port: {h1_0,s1_0,s1_1,s1_2,h2_0,s2_0,s2_1,s2_2,h3_0,
+           s3_0,s3_1,s3_2,h4_0,h5_0};
+    src: {h1,h2,h3};
+    dst: {h3,h4,h5};
+    service: {web, ssh, other};
+
+ASSIGN
+    next
+   
+    

@@ -1,0 +1,52 @@
+
+MODULE header
+  VAR ip_src: {h1,h2,h3,h4,h5};
+      ip_dst: {h1,h2,h3,h4,h5};
+      proto: {TCP, UDP, ICMP};
+      action: {forward, drop, modify};
+
+MOUDLE RULES
+   VAR rule: array 0..1 of {h1,h2,h3,h4,h5};
+   VAR action: {allow, deny};
+   
+MODULE main
+VAR location: {h1,h2,h3,h4,h5,s1,s2,s3};
+    packet: header;  
+    rules: RULES
+ 
+ASSIGN
+   init(location) in {h1, h2, h3, h4, h5};
+   init(packet.srcip) in {h1, h2, h3, h4, h5};
+   init(packet.dstip) in {h1, h2, h3, h4, h5};
+   init(rules.rule[0]) := h1
+   init(rules.rule[1]) := h5
+   init(packet.action) := forward
+   init(rules.action) := allow
+
+   next(location) := case
+
+                     location = h1 & (packet.srcip==h1) &
+                     (rules.rule[0]==h1) & (rules.rule[1] ==h5)
+                     & (rules.action == allow) :s1;
+
+                     location = s1 & (packet.srcip==h1) &
+                     (rules.rule[0]==h1) & (rules.rule[1] ==h5)
+                     & (rules.action == allow) :s2;
+
+                     location = s2 & (packet.srcip==h1) &
+                     (rules.rule[0]==h1) & (rules.rule[1] ==h5)
+                     & (rules.action == allow) :s3;
+
+                     location = s3 & (packet.srcip==h1) &
+                     (rules.rule[0]==h1) & (rules.rule[1] ==h5)
+                     & (rules.action == allow):h5;
+
+                     {h1, h2, h3, h4, h5}: location;
+                     
+                     esac;
+
+   next(packet) := case
+                   (location in {h1,s1,s2,s3,h5}) & (packet.action=forward): 
+                   packet;
+                   esac;
+
