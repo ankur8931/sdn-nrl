@@ -1,1 +1,0 @@
-{"intent1": {"tcpDst": "443", "ipSrc": "10.11.1.103", "type": "HostToHost", "ipDst": "10.11.4.110"}}{"intent2": {"tcpDst": "443", "ipSrc": "10.11.1.102", "type": "HostToHost", "ipDst": "10.11.3.107"}}{"intent3": {"tcpDst": "443", "ipSrc": "10.11.3.107", "type": "HostToHost", "ipDst": "10.11.4.201"}}
